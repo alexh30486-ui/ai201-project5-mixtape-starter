@@ -1,6 +1,5 @@
 """
 services/playlist_service.py — Mixtape
-
 Handles playlist creation and retrieval logic.
 """
 
@@ -10,17 +9,7 @@ from sqlalchemy import asc
 
 
 def create_playlist(name: str, created_by_user_id: str, is_collaborative: bool = True) -> Playlist:
-    """
-    Create a new playlist.
-
-    Args:
-        name: The name of the playlist.
-        created_by_user_id: The ID of the user creating the playlist.
-        is_collaborative: Whether other users can add songs. Defaults to True.
-
-    Returns:
-        The created Playlist instance.
-    """
+    """Create a new playlist."""
     user = db.session.get(User, created_by_user_id)
     if not user:
         raise ValueError(f"User {created_by_user_id} not found")
@@ -36,25 +25,11 @@ def create_playlist(name: str, created_by_user_id: str, is_collaborative: bool =
 
 
 def get_playlist_songs(playlist_id: str) -> list[dict]:
-    """
-    Get the ordered list of songs in a playlist.
-
-    Songs are returned in the order they were added (ascending by position).
-
-    Args:
-        playlist_id: The ID of the playlist.
-
-    Returns:
-        A list of song dicts in playlist order.
-
-    Note:
-        This function returns all songs in the playlist.
-    """
+    """Get the ordered list of songs in a playlist."""
     playlist = db.session.get(Playlist, playlist_id)
     if not playlist:
         raise ValueError(f"Playlist {playlist_id} not found")
 
-    # Query the songs ordered by their position in the playlist
     songs = (
         db.session.query(Song)
         .join(playlist_entries, Song.id == playlist_entries.c.song_id)
@@ -63,34 +38,55 @@ def get_playlist_songs(playlist_id: str) -> list[dict]:
         .all()
     )
 
-    return [song.to_dict() for song in songs[:-1]]
+    return [song.to_dict() for song in songs]  # Fixed: no more [:-1]
 
 
 def get_playlist(playlist_id: str) -> dict:
-    """
-    Get a playlist's metadata (without songs).
-
-    Args:
-        playlist_id: The ID of the playlist.
-
-    Returns:
-        A playlist dict.
-    """
+    """Get a playlist's metadata."""
     playlist = db.session.get(Playlist, playlist_id)
     if not playlist:
         raise ValueError(f"Playlist {playlist_id} not found")
+
     return playlist.to_dict()
 
 
 def get_user_playlists(user_id: str) -> list[dict]:
-    """
-    Get all playlists created by a user.
+    """Return all playlists created by a user."""
+    user = db.session.get(User, user_id)
+    if not user:
+        raise ValueError(f"User {user_id} not found")
 
-    Args:
-        user_id: The ID of the user.
-
-    Returns:
-        A list of playlist dicts.
-    """
     playlists = db.session.query(Playlist).filter_by(created_by=user_id).all()
-    return [p.to_dict() for p in playlists]
+    return [playlist.to_dict() for playlist in playlists]
+
+
+def add_to_playlist(playlist_id: str, song_id: str, added_by: str) -> None:
+    """Add a song to a playlist at the end of the ordering."""
+    playlist = db.session.get(Playlist, playlist_id)
+    if not playlist:
+        raise ValueError(f"Playlist {playlist_id} not found")
+
+    song = db.session.get(Song, song_id)
+    if not song:
+        raise ValueError(f"Song {song_id} not found")
+
+    user = db.session.get(User, added_by)
+    if not user:
+        raise ValueError(f"User {added_by} not found")
+
+    position = (
+        db.session.query(playlist_entries.c.position)
+        .filter(playlist_entries.c.playlist_id == playlist_id)
+        .count()
+        + 1
+    )
+
+    db.session.execute(
+        playlist_entries.insert().values(
+            playlist_id=playlist_id,
+            song_id=song_id,
+            position=position,
+            added_by=added_by,
+        )
+    )
+    db.session.commit()

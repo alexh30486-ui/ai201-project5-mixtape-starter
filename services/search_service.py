@@ -1,52 +1,33 @@
 """
-services/search_service.py — Mixtape
-
-Handles song search logic.
+services/search_service.py
+Song search logic.
 """
 
 from app import db
-from models import Song, Tag, song_tags
+from models import Song, song_tags
 
 
 def search_songs(query: str) -> list[dict]:
     """
-    Search for songs by title or artist name.
-
-    Returns all songs where the title or artist contains the query string
-    (case-insensitive), along with their associated tags.
-
-    Args:
-        query: The search string to match against title and artist fields.
-
-    Returns:
-        A list of song dicts. Each dict includes all song fields plus a
-        'tags' list of tag name strings.
+    Search for songs by title or artist (case-insensitive).
+    Returns each matching song once, with its tags.
     """
     results = (
         db.session.query(Song)
-        .outerjoin(song_tags, Song.id == song_tags.c.song_id)
         .filter(
             db.or_(
                 Song.title.ilike(f"%{query}%"),
                 Song.artist.ilike(f"%{query}%"),
             )
         )
+        .distinct()          # Prevents duplicates from tags join
         .all()
     )
-
     return [song.to_dict() for song in results]
 
 
 def get_song(song_id: str) -> dict:
-    """
-    Get a single song by ID.
-
-    Args:
-        song_id: The UUID of the song.
-
-    Returns:
-        A song dict, or raises ValueError if not found.
-    """
+    """Get a single song by ID."""
     song = db.session.get(Song, song_id)
     if not song:
         raise ValueError(f"Song {song_id} not found")

@@ -1,8 +1,13 @@
 """routes/playlists.py — Mixtape playlist routes"""
 
 from flask import Blueprint, request, jsonify
-from services.playlist_service import create_playlist, get_playlist_songs, get_playlist, get_user_playlists
-from services.notification_service import add_to_playlist
+from services.playlist_service import (
+    create_playlist,
+    get_playlist_songs,
+    get_playlist,
+    get_user_playlists,
+    add_to_playlist,
+)
 
 playlists_bp = Blueprint("playlists", __name__)
 
