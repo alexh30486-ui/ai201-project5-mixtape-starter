@@ -7,7 +7,8 @@ This is the starter repo for **Project 5: Mixtape Bug Hunt**. The app has five o
 ---
 
 #Final Git log
-![Uploading Screenshot 2026-07-01 at 6.10.04 PM.png…]()
+
+<img width="1087" height="708" alt="Screenshot 2026-07-01 at 6 10 04 PM" src="https://github.com/user-attachments/assets/2699cf69-76cf-4e6d-8b0d-70b530477604" />
 
 
 
