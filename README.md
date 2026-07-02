@@ -6,6 +6,14 @@ This is the starter repo for **Project 5: Mixtape Bug Hunt**. The app has five o
 
 ---
 
+#Final Git log
+![Uploading Screenshot 2026-07-01 at 6.10.04 PM.png…]()
+
+
+
+
+
+
 ## App Structure
 
 ```
