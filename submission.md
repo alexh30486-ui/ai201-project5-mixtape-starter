@@ -1,5 +1,6 @@
 # Mixtape Bug Hunt - Submission
-
+## Git Log
+![Git Log](path-to-your-screenshot.png)
 ## AI Usage
 I was able use the codebase orientation (summarizing files and tracing data flows), understanding complex functions, and reviewing root cause logic. I always reproduced bugs myself before fixing and verified changes with manual testing and edge cases.
 
